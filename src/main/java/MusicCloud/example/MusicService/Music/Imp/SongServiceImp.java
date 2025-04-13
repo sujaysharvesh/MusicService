@@ -77,6 +77,15 @@ public class SongServiceImp implements SongService {
         return songRepository.findById(songId).orElseThrow(() -> new RuntimeException("Song not found"));
     }
 
+    @Override
+    public void deleteSong(UUID songId) {
+        songRepository.findById(songId)
+                .ifPresent(song -> {
+                    s3Services.deleteFile(song.getS3Key());
+                    songRepository.delete(song);
+                });
+    }
+
 
     private AudioMetadataDTO extractMetadata(MultipartFile file)
             throws IOException, TikaException, SAXException {

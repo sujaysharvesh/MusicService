@@ -208,4 +208,22 @@ public class SongController {
     private boolean hasAccessToSong(UUID userId, Song song) {
         return song.getUserId().equals(userId);
     }
+
+    @DeleteMapping("/delete/{songId}")
+    public ResponseEntity<?> deleteSong(
+            @PathVariable UUID songId,
+            @RequestHeader("Authorization") String token) {
+        Song song = songService.getSongById(songId);
+        if (song == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new SongUploadResponseDTO("Song not found"));
+        }
+        UUID userId = userServiceClient.getUserInfo(token).block().getId();
+        if (!hasAccessToSong(userId, song)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(new SongUploadResponseDTO("Access denied"));
+        }
+        songService.deleteSong(song.getId());
+        return ResponseEntity.ok(new SongUploadResponseDTO("Song deleted successfully"));
+    }
 }
