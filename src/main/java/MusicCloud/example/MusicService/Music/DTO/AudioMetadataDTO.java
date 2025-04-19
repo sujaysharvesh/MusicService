@@ -10,4 +10,7 @@ public class AudioMetadataDTO {
     private final String title;
     private final String artist;
     private final int duration;
+
+    public void setDuration(long durationInSeconds) {
+    }
 }

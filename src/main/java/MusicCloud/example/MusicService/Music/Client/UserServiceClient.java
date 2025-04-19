@@ -3,6 +3,7 @@ package MusicCloud.example.MusicService.Music.Client;
 import MusicCloud.example.MusicService.Music.DTO.UserDetailsDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -20,8 +21,8 @@ public class UserServiceClient {
 
     private final WebClient webClient;
 
-    public UserServiceClient(@Value("${user-service.url}") String userServiceUrl) {
-        this.webClient = WebClient.builder()
+    public UserServiceClient(WebClient.Builder webClientBuilder, @Value("${user-service.url}") String userServiceUrl) {
+        this.webClient = webClientBuilder
                 .baseUrl(userServiceUrl)
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .build();

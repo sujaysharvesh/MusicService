@@ -14,10 +14,18 @@ import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
 import org.apache.tika.sax.BodyContentHandler;
+import org.jaudiotagger.audio.AudioFile;
+import org.jaudiotagger.audio.AudioFileIO;
+import org.jaudiotagger.audio.exceptions.CannotReadException;
+import org.jaudiotagger.audio.exceptions.InvalidAudioFrameException;
+import org.jaudiotagger.audio.exceptions.ReadOnlyFileException;
+import org.jaudiotagger.tag.FieldKey;
+import org.jaudiotagger.tag.TagException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.xml.sax.SAXException;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.Instant;
@@ -34,7 +42,7 @@ public class SongServiceImp implements SongService {
 
     @Override
     public Song uploadSong(MultipartFile file, UUID userId)
-            throws IOException, TikaException, SAXException {
+            throws IOException, TikaException, SAXException, TagException, InvalidAudioFrameException, ReadOnlyFileException, CannotReadException {
 
         // 1. Generate safe S3 key
         String fileExtension = FilenameUtils.getExtension(file.getOriginalFilename());
@@ -54,12 +62,19 @@ public class SongServiceImp implements SongService {
         // 3. Extract metadata
         AudioMetadataDTO metadata = extractMetadata(file);
 
+        // 4. Try extracting more accurate duration using jaudiotagger
+        File tempFile = File.createTempFile("upload", "." + fileExtension);
+        file.transferTo(tempFile);
+        AudioFile audioFile = AudioFileIO.read(tempFile);
+        int durationInSeconds = audioFile.getAudioHeader().getTrackLength();
+        String title = audioFile.getTag().getFirst(FieldKey.TITLE);
+        tempFile.delete(); // Clean up temp file
         // 4. Create and save song
         Song song = new Song();
         song.setUserId(userId);
         song.setS3Key(s3Key);
-        song.setTitle(metadata.getTitle());
-        song.setDurationSec(metadata.getDuration());
+        song.setTitle(title);
+        song.setDurationSec(durationInSeconds);
         song.setFileSize(file.getSize());
         song.setContentType(file.getContentType());
         song.setUploadedAt(String.valueOf(Instant.now()));
@@ -104,16 +119,13 @@ public class SongServiceImp implements SongService {
                         .orElse(FilenameUtils.getBaseName(file.getOriginalFilename())),
                 Optional.ofNullable(metadata.get("xmpDM:artist"))
                         .orElse("Unknown Artist"),
-                parseDuration(metadata.get("xmpDM:duration"))
+                (int) parseDuration(metadata.get("xmpDM:duration"))
         );
     }
-
-    private int parseDuration(String durationStr) {
-        if (durationStr == null) return 0;
-        try {
-            return (int) (Double.parseDouble(durationStr) * 1000);
-        } catch (NumberFormatException e) {
-            return 0;
+    private long parseDuration(String durationStr) {
+        if (durationStr != null) {
+            return (long) (Double.parseDouble(durationStr) / 1000); // Convert ms to seconds
         }
+        return 0; // Default duration if not available
     }
 }

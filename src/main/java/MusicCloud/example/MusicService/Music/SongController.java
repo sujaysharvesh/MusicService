@@ -5,9 +5,14 @@ import MusicCloud.example.MusicService.Music.Client.UserServiceClient;
 import MusicCloud.example.MusicService.Music.DTO.SongResponseDTO;
 import MusicCloud.example.MusicService.Music.DTO.SongUploadResponseDTO;
 import MusicCloud.example.MusicService.Music.DTO.UserDetailsDTO;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.utils.StreamGobbler;
+import org.jaudiotagger.audio.exceptions.CannotReadException;
+import org.jaudiotagger.audio.exceptions.InvalidAudioFrameException;
+import org.jaudiotagger.audio.exceptions.ReadOnlyFileException;
+import org.jaudiotagger.tag.TagException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
@@ -64,10 +69,12 @@ public class SongController {
     }
 
     @GetMapping("/songs")
+    @CircuitBreaker(name = "musicBreaker", fallbackMethod = "fallbackGetUserSongs")
     public Mono<ResponseEntity<List<SongResponseDTO>>> getUserSongs(@RequestHeader("Authorization") String token) {
         UserDetailsDTO userDetailsDTO = userServiceClient.getUserInfo(token).block();
         List<SongResponseDTO> songs = songService.getUserSongs(userDetailsDTO.getId()).stream()
                 .map(song -> new SongResponseDTO(
+                        song.getId(),
                         song.getTitle(),
                         song.getS3Key(),
                         song.getContentType(),
@@ -120,7 +127,8 @@ public class SongController {
                                         null,
                                         song.getUploadedAt()// No error message
                                 )));
-                    } catch (IOException | TikaException | SAXException e) {
+                    } catch (IOException | TikaException | SAXException | TagException | InvalidAudioFrameException |
+                             ReadOnlyFileException | CannotReadException e) {
                         return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                                 .body(new SongUploadResponseDTO("Error processing file: " + e.getMessage())));
                     }
@@ -160,7 +168,16 @@ public class SongController {
                     .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                     .body(outputStream -> outputStream.write("{\"error\": \"Unauthorized\"}".getBytes()));
         }
-        UUID userId = userServiceClient.getUserInfo(token).block().getId();
+
+        UserDetailsDTO userDetails = userServiceClient.getUserInfo(token).block();
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                    .body(outputStream -> outputStream.write("{\"error\": \"Invalid or expired token\"}".getBytes()));
+        }
+
+        UUID userId = userDetails.getId();
+
         if (!hasAccessToSong(userId, song)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
