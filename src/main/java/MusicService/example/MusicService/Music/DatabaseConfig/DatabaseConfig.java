@@ -1,4 +1,4 @@
-package MusicCloud.example.MusicService.Music.DatabaseConfig;
+package MusicService.example.MusicService.Music.DatabaseConfig;
 
 
 import jakarta.persistence.EntityManagerFactory;

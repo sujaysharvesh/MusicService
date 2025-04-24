@@ -1,19 +1,12 @@
-package MusicCloud.example.MusicService.Music.Client;
+package MusicService.example.MusicService.Music.Client;
 
-import MusicCloud.example.MusicService.Music.DTO.UserDetailsDTO;
+import MusicService.example.MusicService.Music.DTO.UserDetailsDTO;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.security.SecurityProperties;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
-
-import java.net.http.HttpResponse;
-import java.net.http.WebSocket;
 
 
 @Component

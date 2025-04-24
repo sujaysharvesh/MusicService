@@ -1,19 +1,11 @@
-package MusicCloud.example.MusicService.Music.Imp;
+package MusicService.example.MusicService.Music.Imp;
 
-import MusicCloud.example.MusicService.Music.DTO.AudioMetadataDTO;
-import MusicCloud.example.MusicService.Music.S3Services;
-import MusicCloud.example.MusicService.Music.Song;
-import MusicCloud.example.MusicService.Music.SongReponsitory;
-import MusicCloud.example.MusicService.Music.SongService;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import MusicService.example.MusicService.Music.S3Services;
+import MusicService.example.MusicService.Music.Song;
+import MusicService.example.MusicService.Music.SongRepository;
+import MusicService.example.MusicService.Music.SongService;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.tika.exception.TikaException;
-import org.apache.tika.metadata.Metadata;
-import org.apache.tika.parser.AutoDetectParser;
-import org.apache.tika.parser.ParseContext;
-import org.apache.tika.parser.Parser;
-import org.apache.tika.sax.BodyContentHandler;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.audio.exceptions.CannotReadException;
@@ -21,24 +13,31 @@ import org.jaudiotagger.audio.exceptions.InvalidAudioFrameException;
 import org.jaudiotagger.audio.exceptions.ReadOnlyFileException;
 import org.jaudiotagger.tag.FieldKey;
 import org.jaudiotagger.tag.TagException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.xml.sax.SAXException;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
-@RequiredArgsConstructor
 public class SongServiceImp implements SongService {
 
-    private final SongReponsitory songRepository;
+
+    private final SongRepository songRepository;
     private final S3Services s3Services;
+
+    @Autowired
+    public SongServiceImp(SongRepository songRepository, S3Services s3Services) {
+        this.songRepository = songRepository;
+        this.s3Services = s3Services;
+    }
+
+
 
     @Override
     public Song uploadSong(MultipartFile file, UUID userId)
@@ -59,9 +58,6 @@ public class SongServiceImp implements SongService {
                 file.getContentType()
         );
 
-        // 3. Extract metadata
-        AudioMetadataDTO metadata = extractMetadata(file);
-
         // 4. Try extracting more accurate duration using jaudiotagger
         File tempFile = File.createTempFile("upload", "." + fileExtension);
         file.transferTo(tempFile);
@@ -79,7 +75,8 @@ public class SongServiceImp implements SongService {
         song.setContentType(file.getContentType());
         song.setUploadedAt(String.valueOf(Instant.now()));
 
-        return songRepository.save(song);
+        return songRepository
+                .save(song);
     }
 
     @Override
@@ -101,31 +98,4 @@ public class SongServiceImp implements SongService {
                 });
     }
 
-
-    private AudioMetadataDTO extractMetadata(MultipartFile file)
-            throws IOException, TikaException, SAXException {
-
-        Parser parser = new AutoDetectParser();
-        BodyContentHandler handler = new BodyContentHandler();
-        Metadata metadata = new Metadata();
-        ParseContext context = new ParseContext();
-
-        try (InputStream stream = file.getInputStream()) {
-            parser.parse(stream, handler, metadata, context);
-        }
-
-        return new AudioMetadataDTO(
-                Optional.ofNullable(metadata.get("title"))
-                        .orElse(FilenameUtils.getBaseName(file.getOriginalFilename())),
-                Optional.ofNullable(metadata.get("xmpDM:artist"))
-                        .orElse("Unknown Artist"),
-                (int) parseDuration(metadata.get("xmpDM:duration"))
-        );
-    }
-    private long parseDuration(String durationStr) {
-        if (durationStr != null) {
-            return (long) (Double.parseDouble(durationStr) / 1000); // Convert ms to seconds
-        }
-        return 0; // Default duration if not available
-    }
 }

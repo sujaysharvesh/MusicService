@@ -1,4 +1,4 @@
-package MusicCloud.example.MusicService.Music.Client;
+package MusicService.example.MusicService.Music.Client;
 
 
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;

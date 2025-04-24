@@ -1,14 +1,12 @@
-package MusicCloud.example.MusicService.Music;
+package MusicService.example.MusicService.Music;
 
 
-import MusicCloud.example.MusicService.Music.Client.UserServiceClient;
-import MusicCloud.example.MusicService.Music.DTO.SongResponseDTO;
-import MusicCloud.example.MusicService.Music.DTO.SongUploadResponseDTO;
-import MusicCloud.example.MusicService.Music.DTO.UserDetailsDTO;
+import MusicService.example.MusicService.Music.Client.UserServiceClient;
+import MusicService.example.MusicService.Music.DTO.SongResponseDTO;
+import MusicService.example.MusicService.Music.DTO.SongUploadResponseDTO;
+import MusicService.example.MusicService.Music.DTO.UserDetailsDTO;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
-import lombok.RequiredArgsConstructor;
 import org.apache.tika.exception.TikaException;
-import org.apache.tika.utils.StreamGobbler;
 import org.jaudiotagger.audio.exceptions.CannotReadException;
 import org.jaudiotagger.audio.exceptions.InvalidAudioFrameException;
 import org.jaudiotagger.audio.exceptions.ReadOnlyFileException;
@@ -33,7 +31,6 @@ import java.util.concurrent.TimeoutException;
 
 @RestController
 @RequestMapping("/api/music")
-@RequiredArgsConstructor
 public class SongController {
 
     @Autowired
@@ -83,7 +80,6 @@ public class SongController {
                 )).toList();
         return Mono.just(ResponseEntity.ok(songs));
     }
-
 
 
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)

@@ -1,4 +1,4 @@
-package MusicCloud.example.MusicService;
+package MusicService.example.MusicService;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

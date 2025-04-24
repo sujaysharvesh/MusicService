@@ -1,4 +1,4 @@
-package MusicCloud.example.MusicService.Music;
+package MusicService.example.MusicService.Music;
 
 
 import org.apache.tika.exception.TikaException;
@@ -13,7 +13,6 @@ import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service

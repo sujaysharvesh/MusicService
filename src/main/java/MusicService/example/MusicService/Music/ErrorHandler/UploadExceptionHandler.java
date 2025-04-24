@@ -1,7 +1,7 @@
-package MusicCloud.example.MusicService.Music.ErrorHandler;
+package MusicService.example.MusicService.Music.ErrorHandler;
 
 
-import MusicCloud.example.MusicService.Music.DTO.SongUploadResponseDTO;
+import MusicService.example.MusicService.Music.DTO.SongUploadResponseDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
