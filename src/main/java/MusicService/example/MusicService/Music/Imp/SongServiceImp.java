@@ -31,12 +31,20 @@ public class SongServiceImp implements SongService {
     private final SongRepository songRepository;
     private final S3Services s3Services;
 
+<<<<<<< HEAD
+=======
+    @Autowired
+>>>>>>> fd3f615d09ab37de336f579bd954a250c89f16c5
     public SongServiceImp(SongRepository songRepository, S3Services s3Services) {
         this.songRepository = songRepository;
         this.s3Services = s3Services;
     }
 
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> fd3f615d09ab37de336f579bd954a250c89f16c5
     @Override
     public Song uploadSong(MultipartFile file, UUID userId)
             throws IOException, TikaException, SAXException, TagException, InvalidAudioFrameException, ReadOnlyFileException, CannotReadException {
