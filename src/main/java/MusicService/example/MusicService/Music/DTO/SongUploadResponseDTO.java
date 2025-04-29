@@ -1,15 +1,20 @@
 package MusicService.example.MusicService.Music.DTO;
 
+import MusicService.example.MusicService.Music.Song;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Builder;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+import org.springframework.stereotype.Component;
 
+import java.time.Instant;
 import java.util.UUID;
 
-
-@Getter
-@Setter
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Component
 public class SongUploadResponseDTO {
     private UUID id;
     private UUID userId;
@@ -21,45 +26,44 @@ public class SongUploadResponseDTO {
     private String errMessage;
     private String uploadedAt;
 
-
-    public String getContentType() {
-        return contentType;
+    // Default constructor
+    public SongUploadResponseDTO() {
     }
 
-    public void setContentType(String contentType) {
-        this.contentType = contentType;
-    }
-
-    public int getDurationSec() {
-        return durationSec;
-    }
-
-    public void setDurationSec(int durationSec) {
-        this.durationSec = durationSec;
-    }
-
-    public String getErrMessage() {
-        return errMessage;
-    }
-
-    public void setErrMessage(String errMessage) {
+    // Constructor with error message
+    public SongUploadResponseDTO(String errMessage) {
         this.errMessage = errMessage;
     }
 
-    public Long getFileSize() {
-        return fileSize;
+    // Constructor from Song entity
+    public SongUploadResponseDTO(Song song, UUID userId) {
+        if (song != null) {
+            this.id = song.getId();
+            this.userId = userId;
+            this.s3Key = song.getS3Key();
+            this.title = song.getTitle();
+            this.fileSize = song.getFileSize();
+            this.durationSec = song.getDurationSec();
+            this.contentType = song.getContentType();
+            this.uploadedAt = song.getUploadedAt();
+        }
     }
 
-    public void setFileSize(Long fileSize) {
-        this.fileSize = fileSize;
-    }
-
+    // Getters and Setters
     public UUID getId() {
         return id;
     }
 
     public void setId(UUID id) {
         this.id = id;
+    }
+
+    public UUID getUserId() {
+        return userId;
+    }
+
+    public void setUserId(UUID userId) {
+        this.userId = userId;
     }
 
     public String getS3Key() {
@@ -78,6 +82,38 @@ public class SongUploadResponseDTO {
         this.title = title;
     }
 
+    public Long getFileSize() {
+        return fileSize;
+    }
+
+    public void setFileSize(Long fileSize) {
+        this.fileSize = fileSize;
+    }
+
+    public int getDurationSec() {
+        return durationSec;
+    }
+
+    public void setDurationSec(int durationSec) {
+        this.durationSec = durationSec;
+    }
+
+    public String getContentType() {
+        return contentType;
+    }
+
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
+    }
+
+    public String getErrMessage() {
+        return errMessage;
+    }
+
+    public void setErrMessage(String errMessage) {
+        this.errMessage = errMessage;
+    }
+
     public String getUploadedAt() {
         return uploadedAt;
     }
@@ -86,29 +122,18 @@ public class SongUploadResponseDTO {
         this.uploadedAt = uploadedAt;
     }
 
-    public UUID getUserId() {
-        return userId;
-    }
-
-    public void setUserId(UUID userId) {
-        this.userId = userId;
-    }
-
-
-    // Constructor for success responses
-    public SongUploadResponseDTO(UUID id, UUID id1, String s3Key, String title, Long fileSize, int durationSec, String contentType, Object o, String uploadedAt) {
-    }
-
-    // Constructor for error responses
-    public SongUploadResponseDTO(String errMessage) {
-        this.errMessage = errMessage;
-        this.id = null;
-        this.userId = null;
-        this.s3Key = null;
-        this.title = null;
-        this.fileSize = null;
-        this.durationSec = 0;
-        this.contentType = null;
-        this.uploadedAt = null;
+    @Override
+    public String toString() {
+        return "SongUploadResponseDTO{" +
+                "id=" + id +
+                ", userId=" + userId +
+                ", s3Key='" + s3Key + '\'' +
+                ", title='" + title + '\'' +
+                ", fileSize=" + fileSize +
+                ", durationSec=" + durationSec +
+                ", contentType='" + contentType + '\'' +
+                ", errMessage='" + errMessage + '\'' +
+                ", uploadedAt='" + uploadedAt + '\'' +
+                '}';
     }
 }

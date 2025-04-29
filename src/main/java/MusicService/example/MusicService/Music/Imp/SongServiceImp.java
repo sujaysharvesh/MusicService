@@ -15,6 +15,7 @@ import org.jaudiotagger.tag.FieldKey;
 import org.jaudiotagger.tag.TagException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.xml.sax.SAXException;
 
@@ -31,20 +32,13 @@ public class SongServiceImp implements SongService {
     private final SongRepository songRepository;
     private final S3Services s3Services;
 
-<<<<<<< HEAD
-=======
     @Autowired
->>>>>>> fd3f615d09ab37de336f579bd954a250c89f16c5
     public SongServiceImp(SongRepository songRepository, S3Services s3Services) {
         this.songRepository = songRepository;
         this.s3Services = s3Services;
     }
 
-
-<<<<<<< HEAD
-=======
-
->>>>>>> fd3f615d09ab37de336f579bd954a250c89f16c5
+    @Transactional
     @Override
     public Song uploadSong(MultipartFile file, UUID userId)
             throws IOException, TikaException, SAXException, TagException, InvalidAudioFrameException, ReadOnlyFileException, CannotReadException {
@@ -80,9 +74,9 @@ public class SongServiceImp implements SongService {
         song.setFileSize(file.getSize());
         song.setContentType(file.getContentType());
         song.setUploadedAt(String.valueOf(Instant.now()));
-
-        return songRepository
-                .save(song);
+        Song savedSong = songRepository.save(song);
+        songRepository.flush();
+        return savedSong;
     }
 
     @Override
@@ -102,6 +96,11 @@ public class SongServiceImp implements SongService {
                     s3Services.deleteFile(song.getS3Key());
                     songRepository.delete(song);
                 });
+    }
+
+    @Override
+    public List<Song> getAllSongs() {
+        return songRepository.findAll();
     }
 
 }

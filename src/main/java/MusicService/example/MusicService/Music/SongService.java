@@ -22,4 +22,5 @@ public interface SongService {
     List<Song> getUserSongs(UUID userId);
     Song getSongById(UUID songId);
     void deleteSong(UUID songId);
+    List<Song> getAllSongs();
 }
