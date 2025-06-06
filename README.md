@@ -1,7 +1,5 @@
 🎵 Melodify - Microservice Music Streaming Platform
-Architecture Diagram (![Diagram](C:\Users\sujay\Downloads\MusicStreaming.excalidraw.png)
-
-)
+![Architecture Diagram](./Assets/MusicStreaming.excalidraw.png)
 
 A high-performance music streaming service with personalized recommendations, built using microservices architecture. 
 
@@ -60,7 +58,7 @@ Steps
 Clone & Configure
 
 bash
-git clone https://github.com/yourusername/melodify.git  
+git clone https://github.com/sujaysharvesh/MusicService.git  
 cd melodify  
 cp .env.example .env  # Configure AWS/SMTP/DB keys  
 Run with Docker
