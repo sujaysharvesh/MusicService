@@ -1,5 +1,6 @@
 🎵 Melodify - Microservice Music Streaming Platform
-Architecture Diagram ([Open this diagram in Excalidraw](https://excalidraw.com/#json=P0Umay0xUnCyz33Rg-9L9,JfTd2z_DoCnn8Iimnbzc6g)
+Architecture Diagram (![Diagram](C:\Users\sujay\Downloads\MusicStreaming.excalidraw.png)
+
 )
 
 A high-performance music streaming service with personalized recommendations, built using microservices architecture. 
