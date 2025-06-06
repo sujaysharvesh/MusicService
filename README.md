@@ -1,118 +1,104 @@
-🎵 Melodify - Microservice Music Streaming Platform
+# 🎵 Music Streaming Application
+
+This project is a scalable and modular **Music Streaming Platform** built using microservices architecture. It enables users to register, upload, and stream music seamlessly via a web client. The system ensures high availability, efficient media delivery, and secure user management.
+
+---
+
+## 📌 Architecture Overview
+
 ![Architecture Diagram](./Assets/MusicStreaming.excalidraw.png)
 
-A high-performance music streaming service with personalized recommendations, built using microservices architecture. 
+---
 
-🌟 Key Features
-Music Discovery
+## 🧩 Components
 
-Search by artist, album, or genre
+### 1. **Client**
+- Acts as the frontend interface for users.
+- Sends requests and receives responses through the NGINX reverse proxy.
 
-Personalized recommendations (SVM-based)
+### 2. **NGINX + EC2**
+- **NGINX** serves as the reverse proxy for handling HTTP requests.
+- Deployed on an **AWS EC2** instance for secure entry into the system.
 
-Trending playlists & radio stations
+### 3. **API Gateway**
+- Routes requests to appropriate backend services.
+- Ensures scalability and centralized authentication/authorization.
 
-User Experience
+### 4. **User Service**
+- Handles user authentication and data management.
+- Uses:
+  - **PostgreSQL** for user data
+  - **Redis** for session/JWT storage
+- Communicates with:
+  - API Gateway
+  - Web Client
 
-Playlist creation & sharing
+### 5. **Music Streaming Service**
+- Manages audio file uploads, storage, and metadata.
+- Features:
+  - Stores audio files in **AWS S3**
+  - Stores metadata in **PostgreSQL**
+- Serves data to the frontend and manages streaming APIs.
 
-Offline download (encrypted files)
+### 6. **Web Client**
+- Built using modern frontend frameworks.
+- Interacts with both the **User Service** and **Music Service** through the API Gateway.
 
-Cross-device sync
+### 7. **Support Services**
+- **Service Registry (Eureka)** – for service discovery
+- **Config Server** – central configuration management for microservices
+- **Docker** – all services are containerized for consistent deployment
 
-Content Management
+---
 
-Artist verification portal
+## ⚙️ Technologies Used
 
-Analytics dashboard
+- **Backend:** Spring Boot (Java)
+- **Frontend:** Web (React/Next.js or similar)
+- **API Gateway:** Spring Cloud Gateway
+- **Database:** PostgreSQL, Redis
+- **File Storage:** AWS S3
+- **Containerization:** Docker
+- **Deployment:** AWS EC2, NGINX
+- **Service Discovery:** Eureka
+- **Configuration Management:** Spring Cloud Config Server
 
-Copyright protection
+---
 
-🛠️ Tech Stack
-Backend Services
-Service	Technology	Description
-User Service	Spring Boot, JWT, OAuth2, Keycloak	Handles auth, profiles, subscriptions
-Content Service	Spring Boot, PostgreSQL	Manages songs, albums, metadata
-Streaming Service	Node.js, FFmpeg	Audio transcoding & adaptive bitrate streaming
-Recommendation	Python (scikit-learn), Redis	SVM-based song suggestions
-Infrastructure
-Storage: AWS S3 (encrypted audio), PostgreSQL (metadata)
+## 🚀 How It Works
 
-Caching: Redis (session store, recommendations)
+1. User sends request via web client.
+2. NGINX on EC2 routes the request to the API Gateway.
+3. API Gateway forwards the request to:
+   - **User Service** for auth/user ops.
+   - **Music Streaming Service** for streaming/audio ops.
+4. Music files and metadata are served from S3 and PostgreSQL.
 
-Security: AES-256 file encryption, HTTPS streaming
+---
 
-CI/CD: Docker, Kubernetes, GitHub Actions
+## 📁 Project Structure
 
-🚀 Deployment
-Prerequisites
-JDK 17+
+/user-service
+/music-service
+/api-gateway
+/server-registry
+/config-server
+/web-client
+/docker-compose.yml
 
-Docker 20.10+
+yaml
+Copy
+Edit
 
-PostgreSQL 14
+---
 
-Redis 6.2
+## 🏁 Getting Started
 
-Steps
-Clone & Configure
+```bash
+# Clone the repo
+git clone https://github.com/sujaysharvesh/MusicService.git
 
-bash
-git clone https://github.com/sujaysharvesh/MusicService.git  
-cd melodify  
-cp .env.example .env  # Configure AWS/SMTP/DB keys  
-Run with Docker
+# Navigate to project and start services
+cd music-streaming-app
+docker-compose up --build
 
-bash
-docker-compose -f docker-compose.prod.yml up --build  
-Access Services
-
-API: http://localhost:8080
-
-Admin: http://localhost:8081
-
-Monitoring: http://localhost:9090 (Prometheus)
-
-📊 System Architecture
-Diagram
-Code
-
-
-
-
-
-
-
-
-
-
-🔐 Security Highlights
-File Protection:
-
-java
-// AES-256 Encryption  
-Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");  
-cipher.init(Cipher.ENCRYPT_MODE, keySpec, iv);  
-Auth Flow: JWT + Keycloak with 2FA support
-
-Compliance: GDPR-ready data deletion pipeline
-
-📈 Performance Metrics
-Metric	Value
-API Response Time	<500ms (P99)
-Streaming Latency	1.2s (adaptive)
-Max Concurrent Users	50,000
-Encryption Throughput	2GB/min (EC2 c5.xlarge)
-🤝 Contributing
-Fork the repository
-
-Create feature branch (git checkout -b feature/xyz)
-
-Submit a PR with:
-
-Test coverage (min 80%)
-
-Updated Swagger docs
-
-📜 License
-MIT License - See LICENSE
